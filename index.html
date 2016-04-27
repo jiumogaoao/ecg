@@ -118,12 +118,13 @@ function adddata(F, C, E, J) {
     }
 }
 Convert16Scale();
-
-var maxTime=400;
+var oneTimePoint = 8 ;
+var layerName =new Array("I","II","III","aVR","aVL","aVF","V1","V2","V3","V4","V5","V6");
+var maxTime=oQueue.GetSize() / oneTimePoint;
 var curTime=0;
 var pointWidth=1;
 var reflashTime=100;
-var canvas, stage, img, w, h;
+var canvas, stage;
 var lastPoint=[];
 var container=[];
 var line=[];
@@ -139,7 +140,7 @@ function loop(){
 	if (oQueue.IsEmpty()) {
         return
     }
-    if (oQueue.GetSize() < 8) {
+    if (oQueue.GetSize() < oneTimePoint ) {
         return
     }
 	curTime = curTime%maxTime;
@@ -147,7 +148,7 @@ function loop(){
 		stage.removeAllChildren();
 		};
 	var F = new Array();
-    for (var J = 0; J < 8; J++) {
+    for (var J = 0; J < oneTimePoint ; J++) {
         F.push(oQueue.DeQueue())
     }
 	draw(F);
@@ -162,20 +163,28 @@ function draw(pointGroup){
 			if(!container[layer]){
 				container[layer]=new createjs.Container();
 				container[layer].y = 180*layer-50;
+				 var text = new createjs.Text(layerName[layer], "20px Arial", "#ff7700");
+ 				text.x = 10;
+				text.y = 140;
+ 				text.textBaseline = "alphabetic";
+				container[layer].addChild(text);
 				stage.addChild(container[layer]);
 				}
 			var onceDraw=false;
 			if(!line[layer]){
 				onceDraw=true;
 				line[layer] = new createjs.Shape();
+				line[layer].x = 50;
 				line[layer] .graphics.setStrokeStyle(1, "round", "round").beginStroke("#f90");
 				container[layer].addChild(line[layer]);
 				}
 			for ( var point = 0 ; point < pointGroup.length ; point++ ) {
+				canvas.width=pointWidth*(point+curTime * oneTimePoint )+100;
 					if(onceDraw){
-						line[layer].graphics.moveTo(pointWidth*(point-1+curTime*8),pointGroup[point][layer]);
+						line[layer].graphics.moveTo(pointWidth*(point-1+curTime * oneTimePoint ),pointGroup[point][layer]);
 						}
-					line[layer].graphics.lineTo(pointWidth*(point+curTime*8),pointGroup[point][layer]);	
+					line[layer].graphics.lineTo(pointWidth*(point+curTime * oneTimePoint ),pointGroup[point][layer]);	
+					
 				}
 			
 			
