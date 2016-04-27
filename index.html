@@ -131,7 +131,8 @@ var line=[];
 canvas = document.getElementById("ecgCanvas");
 		// create a new stage and point it at our canvas:
 		stage = new createjs.Stage(canvas);
-
+		stage.enableMouseOver(100);
+createjs.Ticker.addEventListener("tick", stage);
 		// grab canvas width and height for later calculations:
 		w = canvas.width;
 		h = canvas.height;
@@ -173,13 +174,23 @@ function draw(pointGroup){
  				text.textBaseline = "alphabetic";
 				container[layer].addChild(text);
 				stage.addChild(container[layer]);
+				container[layer].addEventListener("mouseover", function(event){
+					console.log(event);
+					stage.update();
+				});
+				container[layer].addEventListener("mouseout", function(event){
+					console.log(event);
+					stage.update();
+				});
 				}
 			var onceDraw=false;
 			if(!line[layer]){
 				onceDraw=true;
 				line[layer] = new createjs.Shape();
 				line[layer].x = 50;
-				line[layer] .graphics.setStrokeStyle(1, "round", "round").beginStroke("#9d6003");
+				//line[layer].graphics.setStrokeStyle(10).beginStroke("#9d6003");
+
+		line[layer].graphics.setStrokeStyle(1, "round", "round").beginStroke("#f90");
 				container[layer].addChild(line[layer]);
 				}
 			for ( var point = 0 ; point < pointGroup.length ; point++ ) {
