@@ -6,14 +6,14 @@
 <script src="easeljs-NEXT.combined.js"></script>
 <style>
 .content, canvas {
-	background: white;
+	background: url(img/ecgBg.jpg);
 }
 </style>
 </head>
 
 <body>
 <div>
-	<canvas id="ecgCanvas" width="4000" height="2300"></canvas>
+	<canvas id="ecgCanvas" width="4000" height="2200"></canvas>
 </div>
 </body>
 </html>
@@ -123,7 +123,7 @@ var layerName =new Array("I","II","III","aVR","aVL","aVF","V1","V2","V3","V4","V
 var maxTime=oQueue.GetSize() / oneTimePoint;
 var curTime=0;
 var pointWidth=1;
-var reflashTime=100;
+var reflashTime=25;
 var canvas, stage;
 var lastPoint=[];
 var container=[];
@@ -162,8 +162,8 @@ function draw(pointGroup){
 		for ( var layer = 0 ; layer < 12 ; layer ++ ) {
 			if(!container[layer]){
 				container[layer]=new createjs.Container();
-				container[layer].y = 180*layer-50;
-				 var text = new createjs.Text(layerName[layer], "20px Arial", "#ff7700");
+				container[layer].y = 180*layer-60;
+				 var text = new createjs.Text(layerName[layer], "20px Arial", "#000");
  				text.x = 10;
 				text.y = 140;
  				text.textBaseline = "alphabetic";
