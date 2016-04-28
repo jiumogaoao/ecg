@@ -113,23 +113,27 @@ function adddata(F, C, E, J) {
     }
 }
 Convert16Scale();
-var oneTimePoint = 8;
 /*一次打多少个点*/
-var layerName = new Array("I","II","III","aVR","aVL","aVF","V1","V2","V3","V4","V5","V6");
+var oneTimePoint = 8;
 /*行名*/
-var maxTime = oQueue.GetSize() / oneTimePoint;
+var layerName = new Array("I","II","III","aVR","aVL","aVF","V1","V2","V3","V4","V5","V6");
 /* 一共打多少次 */
-var curTime = 0;
+var maxTime = oQueue.GetSize() / oneTimePoint;
 /*打到第几次*/
-var pointWidth = 1;
+var curTime = 0;
 /*每点间隔*/
-var reflashTime = 100;
+var pointWidth = 125/128;
 /*打印间隔*/
+var reflashTime = 100;
+/*跟电压有关的*/
+var adu = 52;
+/*电压档*/
+var ecg_scope = 1;
 var canvas, stage;
-var container = [];
 /*容器库*/
-var line = [];
+var container = [];
 /*线库*/
+var line = [];
 canvas = document.getElementById("ecgCanvas");
 // create a new stage and point it at our canvas:
 stage = new createjs.Stage(canvas);
@@ -170,7 +174,7 @@ function draw(pointGroup) {
             container[layer] = new createjs.Container();
             container[layer].name = layerName[layer];
             stage.addChild(container[layer]);
-            container[layer].y = 100 * layer - 55;
+            container[layer].y = 100 * layer - 58;
             if (layer == 11) {
                 container[layer].y += 80;
             }
@@ -179,6 +183,7 @@ function draw(pointGroup) {
             text.x = 10;
             text.y = 140;
             text.textBaseline = "alphabetic";
+            text.mouseEnabled = false;
             container[layer].addChild(text);
             /* 数值文字 */
             var numberText = new createjs.Text(layerName[layer] + "\nv:000\nt:000","20px Arial","#000");
@@ -188,18 +193,32 @@ function draw(pointGroup) {
             numberText.name = "numberText";
             numberText.textBaseline = "alphabetic";
             container[layer].addChild(numberText);
+            /* 红点 */
+            var redPoint = new createjs.Shape();
+ 			redPoint.graphics.setStrokeStyle(1);
+ 			redPoint.graphics.beginStroke("#000000");
+ 			redPoint.graphics.beginFill("red");
+ 			redPoint.graphics.drawCircle(0,0,3);
+ 			redPoint.visible = false;
+ 			redPoint.mouseEnabled = false;
+ 			redPoint.name = "redPoint";
+ 			container[layer].addChild(redPoint);
             /* 交互事件 */
             container[layer].addEventListener("mouseover", function(event) {
-                console.log(event);
                 var target = event.currentTarget.getChildByName("numberText");
                 target.text = event.currentTarget.name + "\nv:" + (event.rawY - event.currentTarget.y) + "mv\nt:" + (((event.rawX - 50) / 5) * 0.04).toFixed(2) + "s";
                 target.x = event.rawX + 20;
                 target.y = event.rawY - event.currentTarget.y + 20;
                 target.visible = true;
+                var targetRedPoint = event.currentTarget.getChildByName("redPoint");
+                targetRedPoint.x = event.rawX + 1 ;
+                targetRedPoint.y = event.rawY - event.currentTarget.y + 1;
+                targetRedPoint.visible = true;
                 stage.update();
             }
             );
             container[layer].addEventListener("mouseout", function(event) {
+            	event.currentTarget.getChildByName("redPoint").visible = false;
                 event.currentTarget.getChildByName("numberText").visible = false;
                 stage.update();
             }
@@ -217,10 +236,16 @@ function draw(pointGroup) {
         }
         for (var point = 0; point < pointGroup.length; point++) {
             canvas.width = pointWidth * (point + curTime * oneTimePoint) + 100;
-            if (onceDraw) {
-                line[layer].graphics.moveTo(pointWidth * (point + curTime * oneTimePoint), parseFloat((Math.abs(pointGroup[point][layer]))));
+            var linePoint=0;
+            if (ecg_scope != 0) {
+                linePoint = parseFloat((Math.abs(pointGroup[point][layer])) * (adu / (25 * 2)) * ecg_scope)
             } else {
-                line[layer].graphics.lineTo(pointWidth * (point + curTime * oneTimePoint), pointGroup[point][layer]);
+                linePoint = parseFloat((Math.abs(pointGroup[point][layer])) * (adu / (25 * 2)) / 2)
+            }
+            if (onceDraw) {
+                line[layer].graphics.moveTo(pointWidth * (point + curTime * oneTimePoint), linePoint);
+            } else {
+                line[layer].graphics.lineTo(pointWidth * (point + curTime * oneTimePoint), linePoint);
             }
         }
     }
