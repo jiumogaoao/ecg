@@ -134,12 +134,41 @@ var canvas, stage;
 var container = [];
 /*线库*/
 var line = [];
+/*鼠标点了*/
+var mousedown = false;
+/*上一点*/
+var oldPoint = {
+	x:0,
+	y:0
+};
 canvas = document.getElementById("ecgCanvas");
-// create a new stage and point it at our canvas:
 stage = new createjs.Stage(canvas);
-stage.enableMouseOver(100);
 /*MouseOver敏感度*/
-// grab canvas width and height for later calculations:
+stage.enableMouseOver(100);
+stage.addEventListener("stagemousedown", function(event) {
+	oldPoint.x = event.stageX;
+	oldPoint.y = event.stageY;
+	mousedown=true;
+});
+stage.addEventListener("stagemouseup", function(event) {
+	mousedown=false;
+});
+stage.addEventListener("stagemousemove", function(event) {
+	/*红十字*/
+	if(stage.getChildByName("redLine")){
+		stage.getChildByName("redLine").x=event.stageX;
+	}
+	if(stage.getChildByName("redLine2")){
+		stage.getChildByName("redLine2").y=event.stageY;
+	}
+	/*画线*/
+	if(mousedown&&stage.getChildByName("drawLine")){
+		stage.getChildByName("drawLine").graphics.setStrokeStyle(1, 'round', 'round').beginStroke("blue").moveTo(oldPoint.x, oldPoint.y).lineTo(event.stageX,event.stageY);
+		oldPoint.x = event.stageX;
+		oldPoint.y = event.stageY;
+	}
+	stage.update();
+})
 w = canvas.width;
 h = canvas.height;
 /*分段提取数据，每次8个*/
@@ -153,6 +182,34 @@ function loop() {
     curTime = curTime % maxTime;
     if (!curTime) {
         stage.removeAllChildren();
+        /*左侧黑色背景*/
+        var bgcon = new createjs.Container();
+        stage.addChild(bgcon);
+        var rect = new createjs.Shape();
+        rect.graphics.beginFill("#808080").drawRect(0, 0, 55, 1450);
+        bgcon.addChild(rect);
+        /*底部秒数*/
+        for(var i = 1; i <40 ;i ++){
+        	var timeText = 	new createjs.Text(i+"s","20px Arial","blue");
+        	timeText.textAlign = "center";
+        	timeText.y = 1400 ;
+        	timeText.x =  125*i + 52;
+        	bgcon.addChild(timeText);
+        };
+        /*竖线*/
+        var redLine = new createjs.Shape();
+		redLine.graphics.setStrokeStyle(1, "round", "round").beginStroke("red");
+		redLine.graphics.moveTo(0,0);
+		redLine.graphics.lineTo(0,1450);
+		redLine.name = "redLine";
+        stage.addChild(redLine);
+        /*横线*/
+        var redLine2 = new createjs.Shape();
+		redLine2.graphics.setStrokeStyle(1, "round", "round").beginStroke("red");
+		redLine2.graphics.moveTo(0,0);
+		redLine2.graphics.lineTo(maxTime*8,0);
+		redLine2.name = "redLine2";
+        stage.addChild(redLine2);
     }
     ;
     var F = new Array();
@@ -164,7 +221,7 @@ function loop() {
     stage.update();
 }
 ;
-/*画线*/
+/*画图*/
 function draw(pointGroup) {
     if (!pointGroup.length) {
         return;
@@ -178,9 +235,16 @@ function draw(pointGroup) {
             if (layer == 11) {
                 container[layer].y += 80;
             }
+            /*背景半透明*/
+ 			var bg = new createjs.Shape();
+        	bg.graphics.beginFill("blue").drawRect(55, 84, maxTime*8, 101);
+        	bg.name = "bg";
+        	bg.alpha = 0.01;
+        	container[layer].addChild(bg);
             /* 左侧文字 */
-            var text = new createjs.Text(layerName[layer],"20px Arial","#000");
-            text.x = 10;
+            var text = new createjs.Text(layerName[layer],"20px Arial","#fff");
+            text.textAlign = "right";
+            text.x = 47;
             text.y = 140;
             text.textBaseline = "alphabetic";
             text.mouseEnabled = false;
@@ -203,23 +267,36 @@ function draw(pointGroup) {
  			redPoint.mouseEnabled = false;
  			redPoint.name = "redPoint";
  			container[layer].addChild(redPoint);
+ 			/*手动画线的*/
+ 			var drawLine = new createjs.Shape();
+ 			drawLine.name = "drawLine";
+ 			stage.addChild(drawLine);
             /* 交互事件 */
             container[layer].addEventListener("mouseover", function(event) {
-                var target = event.currentTarget.getChildByName("numberText");
-                target.text = event.currentTarget.name + "\nv:" + (event.rawY - event.currentTarget.y) + "mv\nt:" + (((event.rawX - 50) / 5) * 0.04).toFixed(2) + "s";
-                target.x = event.rawX + 20;
-                target.y = event.rawY - event.currentTarget.y + 20;
-                target.visible = true;
-                var targetRedPoint = event.currentTarget.getChildByName("redPoint");
-                targetRedPoint.x = event.rawX + 1 ;
-                targetRedPoint.y = event.rawY - event.currentTarget.y + 1;
-                targetRedPoint.visible = true;
+            	if(event.target.name=="line"){
+            		var target = event.currentTarget.getChildByName("numberText");
+	                target.text = event.currentTarget.name + "\nv:" + (event.rawY - event.currentTarget.y) + "mv\nt:" + (((event.rawX - 50) / 5) * 0.04).toFixed(2) + "s";
+	                target.x = event.rawX + 20;
+	                target.y = event.rawY - event.currentTarget.y + 20;
+	                target.visible = true;
+	                var targetRedPoint = event.currentTarget.getChildByName("redPoint");
+	                targetRedPoint.x = event.rawX + 1 ;
+	                targetRedPoint.y = event.rawY - event.currentTarget.y + 1;
+	                targetRedPoint.visible = true;
+	                event.currentTarget.getChildByName("bg").alpha = 0.1;
+            	}
+                if(event.target.name=="bg"){
+                	event.target.alpha = 0.1;
+                }
                 stage.update();
             }
             );
             container[layer].addEventListener("mouseout", function(event) {
             	event.currentTarget.getChildByName("redPoint").visible = false;
                 event.currentTarget.getChildByName("numberText").visible = false;
+                if(event.target.name=="bg"){
+                	event.target.alpha = 0.01;
+                }
                 stage.update();
             }
             );
@@ -230,6 +307,7 @@ function draw(pointGroup) {
         if (!line[layer]) {
             onceDraw = true;
             line[layer] = new createjs.Shape();
+            line[layer].name = "line";
             line[layer].x = 50;
             line[layer].graphics.setStrokeStyle(3, "round", "round").beginStroke("#9d6003");
             container[layer].addChild(line[layer]);
