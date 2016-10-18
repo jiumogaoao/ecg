@@ -1,0 +1,140 @@
+<?php $this->load->view('头部.html');?>
+<section class="embed_page" style="width:1450px;">
+    <section class="tj_detail clearfix">
+    	<div class="xdt lfloat">
+        	<div class="xdtFrame">
+            	<canvas id="ecgCanvas" width="300" height="627"></canvas>
+            </div>
+            <div class="toolFrame">
+            	<div class="tool iconfont" tool="rular">&#xe635;</div>
+                <div class="tool iconfont" tool="move">&#xe634;</div>
+                <div class="tool iconfont" tool="line">&#xe601;</div>
+                <div class="tool iconfont" tool="drag">&#xe636;</div>
+                <div class="size iconfont">&#xe61b;</div>
+            </div>
+        </div>
+        <div class="xdt_detail lfloat">
+            <table class="table" width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <th scope="col" class="bg_grey">姓名</th>
+                <th scope="col" class="bg_grey">性别</th>
+                <th scope="col" class="bg_grey">年龄</th>
+                <th scope="col" class="bg_grey">最近体检时间</th>
+              </tr>
+              <tr>
+                <td><?=$姓名?></td>
+                <td><?=$性别?></td>
+                <td><?=$年龄?></td>
+                <td><?=$最近体检时间?></td>
+              </tr>
+            </table>
+            <div class="xdt_cy">
+                <h1>采样信息</h1>
+                <div class="xdt_cybox bg_grey">
+            	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td width="150">HR</td>
+                    <td class="tr">[bmp]:</td>
+                    <td><span><?=$心电图心率?></span></td>
+                  </tr>
+                  <tr>
+                    <td>PR Interval</td>
+                    <td class="tr">[ms]:</td>
+                    <td><span><?=$PR间期?></span></td>
+                  </tr>
+                  <tr>
+                    <td>P Duration</td>
+                    <td class="tr">[ms]:</td>
+                    <td><span><?=$P时限?></span></td>
+                  </tr>
+                  <tr>
+                    <td>QRS Duration</td>
+                    <td class="tr">[ms]:</td>
+                    <td><span><?=$QRS时限?></span></td>
+                  </tr>
+                  <tr>
+                    <td>T Duration</td>
+                    <td class="tr">[ms]:</td>
+                    <td><span><?=$T时限?></span></td>
+                  </tr>
+                  <tr>
+                    <td>QT / QTc</td>
+                    <td class="tr">[ms]:</td>
+                    <td><span><?=$QT时限?>/<?=$QTC时限?></span></td>
+                  </tr>
+                  <tr>
+                    <td>P/QRS/T Axis</td>
+                    <td class="tr">[deg]:</td>
+                    <td><span><?=$P电轴?>/<?=$QRS电轴?>/<?=$T电轴?></span></td>
+                  </tr>
+                  <tr>
+                    <td>R(V5)/S(V1)</td>
+                    <td class="tr">[mv]:</td>
+                    <td><span><?=$RV5?>/<?=$SV1?></span></td>
+                  </tr>
+                  <tr>
+                    <td>R(V5)+S(V1)</td>
+                    <td class="tr">[mv]:</td>
+                    <td><span><?=$RV5+$SV1?></span></td>
+                  </tr>
+                </table>
+                </div>
+
+				<select>
+                	<option>12x1</option>
+                </select>
+                <select class="xdt_zs">
+                	<option value=1>25.0mm/s</option>
+                    <option value=0.2>5mm/s</option>
+                    <option value=0.25>6.25mm/s</option>
+                    <option value=0.5>12.5mm/s</option>
+                    <option value=2>50mm/s</option>
+                </select>
+                <select style="margin-right:0;" class="xdt_zy">
+                	<option value=1>10mm/mv</option>
+                    <option value=0.25>2.5mm/mv</option>
+                    <option value=0.5>5mm/mv</option>
+                    <option value=2>20mm/mv</option>
+                    <option value=4>40mm/mv</option>
+                </select>
+
+            </div>
+            <!--
+			<div class="xdt_jl">
+            	<h1>节律导联</h1>
+                <div class="xdt_jlbox">
+                    <select>
+                        <option>aVL</option>
+                    </select>
+                    <select>
+                        <option>V1</option>
+                    </select>
+                    <select style="margin-right:0;">
+                        <option>V5</option>
+                    </select>            
+                </div>
+            </div>
+            -->
+        </div>
+
+    </section>
+    
+    <div class="back_box tc">
+        <a class="btn btn_blue" href="#" onclick="javascript:history.back(-1);return false;">返回</a>
+    </div>   
+    
+</section>
+<?php $this->load->view('尾部.html');?>
+<script type="text/javascript" src="/assets/js/easeljs-NEXT.combined.js"></script>
+<script type="text/javascript" src="/assets/js/ecg.js"></script>
+<!--[if lt IE 9]>
+<script type="text/javascript">
+  alert("心电图功能无法在IE9以下浏览器正常显示，请升级你的浏览器或更换chrome、firefox等浏览器")
+</script>
+<![endif]-->
+<script type="text/javascript">
+<!--
+ecg.setData("<?=$心电图详情?>");
+ecg.init();
+//-->
+</script>
